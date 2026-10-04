@@ -9,8 +9,12 @@ permissions:
 
 jobs:
   test:
-    name: Java 21 build
-    runs-on: ubuntu-latest
+    name: Java 21 build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
@@ -23,9 +27,18 @@ jobs:
           cache: maven
 
       - name: Run tests and package every module
-        run: mvn -B verify
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            ./mvnw.cmd -B verify
+          else
+            ./mvnw -B verify
+          fi
 
       - name: Run zero-key Jev example
+        shell: bash
+        env:
+          AGENTJ_JEV_MODE: local
         run: |
           java -jar examples/hybrid-agent/target/agentj-example-hybrid-0.1.0.jar \
             "The payment integration failed for three days and the customer needs help today."
