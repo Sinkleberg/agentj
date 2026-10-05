@@ -93,6 +93,11 @@ java -jar examples/hybrid-agent/target/agentj-example-hybrid-0.1.0.jar \
   "The payment integration failed for three days and the customer needs help today."
 ```
 
+**PowerShell (Windows):**
+```powershell
+.\mvnw.cmd -pl examples/hybrid-agent -am package
+$env:AGENTJ_JEV_MODE="local"; java -jar examples/hybrid-agent/target/agentj-example-hybrid-0.1.0.jar "The payment integration failed for three days and the customer needs help today."
+
 You should see typed decisions followed by ordinary Java control flow:
 
 ```text
