@@ -21,7 +21,10 @@ public final class ToolRegistry implements ToolProvider {
             if (annotation == null) continue;
             String name = annotation.name().isBlank() ? method.getName() : annotation.name();
             String description = annotation.description().isBlank() ? method.getName() : annotation.description();
-            tools.put(name, new RegisteredTool(instance, method, new ToolSpec(name, description, schema(method))));
+            RegisteredTool tool = new RegisteredTool(instance, method, new ToolSpec(name, description, schema(method)));
+            if (tools.putIfAbsent(name, tool) != null) {
+                throw new IllegalArgumentException("Duplicate tool: " + name);
+            }
         }
         return this;
     }

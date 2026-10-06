@@ -27,6 +27,32 @@ class AgentTest {
         assertEquals("a,b", registry.invoke("join", Map.of("values", List.of("a", "b"))));
     }
 
+    @Test void rejectsDuplicateDefaultToolNames() throws Exception {
+        class OtherTools {
+            @Tool public int add(int a, int b) { return a - b; }
+        }
+        ToolRegistry registry = new ToolRegistry(new com.fasterxml.jackson.databind.ObjectMapper()).register(new Tools());
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> registry.register(new OtherTools()));
+
+        assertTrue(error.getMessage().contains("add"));
+        assertEquals(5, registry.invoke("add", Map.of("a", 2, "b", 3)));
+    }
+
+    @Test void rejectsDuplicateExplicitToolNames() throws Exception {
+        class OtherTools {
+            @Tool(name="add") public int subtract(int a, int b) { return a - b; }
+        }
+        ToolRegistry registry = new ToolRegistry(new com.fasterxml.jackson.databind.ObjectMapper()).register(new Tools());
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> registry.register(new OtherTools()));
+
+        assertTrue(error.getMessage().contains("add"));
+        assertEquals(5, registry.invoke("add", Map.of("a", 2, "b", 3)));
+    }
+
     @Test void agentLoopsThroughToolCall() throws Exception {
         List<ModelRequest> requests = new ArrayList<>();
         Model model = request -> {
