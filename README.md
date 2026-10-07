@@ -185,6 +185,8 @@ var agent = Agent.builder()
 System.out.println(agent.run("Use the add tool to calculate 19 + 23."));
 ```
 
+Local `@Tool` names must be unique in a `ToolRegistry`. Registering a duplicate name throws `IllegalArgumentException` and leaves the existing tool unchanged.
+
 MCP then plugs into the same `ToolProvider` seam:
 
 ```java
