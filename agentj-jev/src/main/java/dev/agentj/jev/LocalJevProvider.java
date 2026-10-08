@@ -1,6 +1,7 @@
 package dev.agentj.jev;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -15,7 +16,7 @@ public final class LocalJevProvider implements JevProvider {
     @Override
     public JevResponse ask(Object state, Map<String, JevQuestion> questions) {
         Objects.requireNonNull(questions, "questions");
-        String text = String.valueOf(state).toLowerCase();
+        String text = String.valueOf(state).toLowerCase(Locale.ROOT);
         Map<String, JevAnswer> answers = new LinkedHashMap<>();
 
         for (var entry : questions.entrySet()) {
@@ -44,8 +45,8 @@ public final class LocalJevProvider implements JevProvider {
         String selected = question.criteria().keySet().iterator().next();
         String description = "";
         for (var option : question.criteria().entrySet()) {
-            String candidate = String.valueOf(option.getValue()).toLowerCase();
-            if (matches(text, candidate) || matches(text, option.getKey().toLowerCase()) || (option.getKey().equalsIgnoreCase("billing") && containsAny(text, "charged", "invoice", "refund", "payment"))) {
+            String candidate = String.valueOf(option.getValue()).toLowerCase(Locale.ROOT);
+            if (matches(text, candidate) || matches(text, option.getKey().toLowerCase(Locale.ROOT)) || (option.getKey().equalsIgnoreCase("billing") && containsAny(text, "charged", "invoice", "refund", "payment"))) {
                 selected = option.getKey();
                 description = candidate;
                 break;

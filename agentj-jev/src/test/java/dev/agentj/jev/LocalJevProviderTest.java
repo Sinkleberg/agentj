@@ -3,6 +3,7 @@ package dev.agentj.jev;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,5 +45,30 @@ class LocalJevProviderTest {
         assertFalse(answer.isTrue(0.80));
         assertEquals(0.08, answer.noul());
         assertEquals(0.92, answer.confidence());
+    }
+
+    @Test
+    void urgentDecisionIsLocaleIndependent() {
+        var questions = new LinkedHashMap<String, JevQuestion>();
+        questions.put("urgent", new JevQuestion.Noul("Does this require same-day attention?"));
+
+        Locale original = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.ENGLISH);
+            var english = (JevAnswer.Noul) new LocalJevProvider()
+                    .ask(Map.of("message", "CRITICAL outage"), questions)
+                    .answer("urgent");
+
+            Locale.setDefault(new Locale("tr", "TR"));
+            var turkish = (JevAnswer.Noul) new LocalJevProvider()
+                    .ask(Map.of("message", "CRITICAL outage"), questions)
+                    .answer("urgent");
+
+            assertTrue(english.isTrue(0.80));
+            assertTrue(turkish.isTrue(0.80));
+            assertEquals(english.noul(), turkish.noul());
+        } finally {
+            Locale.setDefault(original);
+        }
     }
 }
