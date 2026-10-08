@@ -64,4 +64,22 @@ class AgentTest {
         assertEquals("6", answer);
         assertEquals(2, requests.size());
     }
+
+    @Test void shouldThrowIllegalStateExceptionWhenMaxStepsIsReached(){
+        int maxSteps = 2;
+        List<ModelRequest> requests = new ArrayList<>();
+        Model model = request -> {
+            requests.add(request);
+            return new ModelResponse("", List.of(new ToolCall("1", "add", Map.of("a", 2, "b", 4))), "");
+        };
+        Agent agent = Agent.builder().model(model).tools(new Tools()).maxSteps(maxSteps).build();
+
+        IllegalStateException illegalStateException = assertThrows(IllegalStateException.class, () -> agent.run("What is 2+2?"));
+
+        String expectedMessage = "Agent exceeded maxSteps=" + maxSteps;
+        String actualMessage = illegalStateException.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+        assertEquals(maxSteps, requests.size());
+    }
 }
