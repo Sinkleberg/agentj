@@ -18,6 +18,15 @@ class AgentTest {
         assertEquals(5, registry.invoke("add", Map.of("a",2,"b",3)));
     }
 
+    @Test void rejectsUnknownToolWithItsName() {
+        ToolRegistry registry = new ToolRegistry(new com.fasterxml.jackson.databind.ObjectMapper()).register(new Tools());
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> registry.invoke("missing-tool", Map.of()));
+
+        assertTrue(error.getMessage().contains("missing-tool"));
+    }
+
     @Test void convertsGenericToolArguments() throws Exception {
         class GenericTools {
             @Tool(description="Echo a list of strings")
